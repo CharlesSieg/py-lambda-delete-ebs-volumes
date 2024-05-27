@@ -30,7 +30,7 @@ phases:
       - echo Build completed on `date`
       # Switch accounts
       - echo Switching to role in other account to call Lambda update...
-      - eval $(aws sts assume-role --role-arn arn:aws:iam::$DESTINATION_ACCOUNT_ID:role/$LAMBDA_NAME-cross-account-role --role-session-name codebuild-session | jq -r '.Credentials | @sh "export AWS_SESSION_TOKEN=\(.SessionToken)\nexport AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey) "')
+      - eval $(aws sts assume-role --role-arn arn:aws:iam::$DESTINATION_ACCOUNT_ID:role/$LAMBDA_NAME-codebuild-cross-account-role --role-session-name codebuild-session | jq -r '.Credentials | @sh "export AWS_SESSION_TOKEN=\(.SessionToken)\nexport AWS_ACCESS_KEY_ID=\(.AccessKeyId)\nexport AWS_SECRET_ACCESS_KEY=\(.SecretAccessKey) "')
       - echo Confirming new role...
       - aws sts get-caller-identity
       # Update lambda
