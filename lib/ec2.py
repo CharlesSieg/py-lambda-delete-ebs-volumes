@@ -35,7 +35,10 @@ class EC2API(AWSAPI):
     try:
       response = self.client.describe_instances()
       log.debug(response)
-      return response["Reservations"][0]["Instances"]
+      reservations = response["Reservations"]
+      if len(reservations) == 0:
+        return None
+      return reservations[0]["Instances"]
     except BaseException as err:
       log.error(f"Unexpected {err=}, {type(err)=}")
       return None
@@ -47,7 +50,10 @@ class EC2API(AWSAPI):
         Filters=filters
       )
       log.debug(response)
-      return response["Reservations"][0]["Instances"]
+      reservations = response["Reservations"]
+      if len(reservations) == 0:
+        return None
+      return reservations[0]["Instances"]
     except BaseException as err:
       log.error(f"Unexpected {err=}, {type(err)=}")
       return None
