@@ -11,7 +11,8 @@ from lib.sts import STSAPI
 log = logging.getLogger("lambda")
 log.setLevel(logging.DEBUG)
 
-dry_run = os.environ.get("DRY_RUN")
+dry_run_val = os.environ.get("DRY_RUN")
+dry_run = False if dry_run_val == "false" else True
 infrastructure_automation_role_name= os.environ.get("INFRASTRUCTURE_AUTOMATION_ROLE_NAME")
 
 
