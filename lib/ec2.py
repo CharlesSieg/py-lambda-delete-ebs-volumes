@@ -31,6 +31,15 @@ class EC2API(AWSAPI):
       log.error(f"Unexpected {err=}, {type(err)=}")
       return None
 
+  def fetch_instances(self):
+    try:
+      response = self.client.describe_instances()
+      log.debug(response)
+      return response["Reservations"]["Instances"]
+    except BaseException as err:
+      log.error(f"Unexpected {err=}, {type(err)=}")
+      return None
+
   def fetch_running_instances(self):
     try:
       filters = [{'Name': 'instance-state-name', 'Values': ['running']}]
@@ -38,7 +47,7 @@ class EC2API(AWSAPI):
         Filters=filters
       )
       log.debug(response)
-      return response["Volumes"]
+      return response["Reservations"]["Instances"]
     except BaseException as err:
       log.error(f"Unexpected {err=}, {type(err)=}")
       return None

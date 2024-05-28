@@ -47,7 +47,7 @@ def lambda_handler(event, context):
     for region_name in regions:
       ec2_api = EC2API(credentials, region_name)
       log.debug(f"Checking for EC2 instances in {region_name}...")
-      running_instances = ec2_api.fetch_running_instances()
+      running_instances = ec2_api.fetch_instances()
       if running_instances is None or len(running_instances) == 0:
         log.debug(f"No running EC2 instances found.")
         continue
