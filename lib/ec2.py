@@ -36,7 +36,7 @@ class EC2API(AWSAPI):
       response = self.client.describe_volumes(
         Filters=[
           {
-            'Name': 'attachment.status',
+            'Name': 'status',
             'Values': ['available']
           }
         ]
