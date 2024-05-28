@@ -1,10 +1,13 @@
 import boto3
 import json
 import logging
+import os
 
 
 log = logging.getLogger("lambda")
 log.setLevel(logging.DEBUG)
+
+infrastructure_automation_role_name= "it-infrastructure-automation-role" #os.environ.get("INFRASTRUCTURE_AUTOMATION_ROLE_NAME")
 
 def fetch_credentials(control_tower_execution_role_arn):
   sts_client = boto3.client('sts')
@@ -23,6 +26,15 @@ def fetch_credentials(control_tower_execution_role_arn):
   return credentials
 
 
+def fetch_parameter(parameter_name):
+  client = boto3.client('ssm')
+  response = client.get_parameter(
+    Name=parameter_name
+  )
+  log.debug(response)
+  return response["Parameter"]["Value"]
+
+
 def lambda_handler(event, context):
   # get account_id from event
   # fetch list of regions from SSM
@@ -35,16 +47,20 @@ def lambda_handler(event, context):
   log.debug(f"event = {event}")
   log.debug(f"context = {context}")
 
-  aws_account_ids = event["aws_account_ids"]
-  log.debug(f"aws_account_ids = {aws_account_ids}")
+  account_ids = event["aws_account_ids"]
+  log.debug(f"aws_account_ids = {account_ids}")
 
-  # role_arn = f"arn:aws:iam::{aws_account_id}:role/{role_name}"
+  parameter_name = f"/automation/regions"
+  regions_json = fetch_parameter(parameter_name)
+  regions = json.loads(regions_json)
 
-  # credentials = fetch_credentials(control_tower_execution_role_arn)
+  for account_id in account_ids:
+    log.debug(f"Assuming role in {account_id}...")
+    infrastructure_automation_role_arn = f"arn:aws:iam::{account_id}:role/{infrastructure_automation_role_name}"
+    credentials = fetch_credentials(infrastructure_automation_role_arn)
+    for region in regions:
+      log.debug(f"Checking for unattached EBS volumes in {region}...")
 
-  # body = "Role was created successfully."
-  # if not create_automation_role(credentials, aws_account_id):
-  #    body = "Role creation failed."
   return {
     'statusCode': 200,
     'body': json.dumps('Hello World!')
