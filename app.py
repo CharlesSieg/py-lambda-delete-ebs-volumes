@@ -35,9 +35,9 @@ def lambda_handler(event, context):
     if credentials is None:
       log.debug(f"AUTOMATION ERROR: Could not assume the given role in {account_id}.")
       continue
-    ec2_api = EC2API(credentials)
-    for region in regions:
-      log.debug(f"Checking for unattached EBS volumes in {region}...")
+    for region_name in regions:
+      ec2_api = EC2API(credentials, region_name)
+      log.debug(f"Checking for unattached EBS volumes in {region_name}...")
       unattached_volumes = ec2_api.fetch_ebs_volumes()
       log.debug(f"Found {len(unattached_volumes)} unattached EBS volumes.")
       for volume in unattached_volumes:
