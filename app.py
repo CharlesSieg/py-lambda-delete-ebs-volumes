@@ -11,8 +11,8 @@ from lib.sts import STSAPI
 log = logging.getLogger("lambda")
 log.setLevel(logging.DEBUG)
 
-infrastructure_automation_role_name= "it-infrastructure-automation-role" #os.environ.get("INFRASTRUCTURE_AUTOMATION_ROLE_NAME")
-
+dry_run = os.environ.get("DRY_RUN")
+infrastructure_automation_role_name= os.environ.get("INFRASTRUCTURE_AUTOMATION_ROLE_NAME")
 
 
 def lambda_handler(event, context):
@@ -33,17 +33,24 @@ def lambda_handler(event, context):
     infrastructure_automation_role_arn = f"arn:aws:iam::{account_id}:role/{infrastructure_automation_role_name}"
     credentials = sts_api.fetch_credentials(infrastructure_automation_role_arn)
     if credentials is None:
-      log.debug(f"AUTOMATION ERROR: Could not assume the given role in {account_id}.")
+      log.debug(f"AUTOMATION ERROR: Could not assume the given role in account {account_id}.")
       continue
     for region_name in regions:
       ec2_api = EC2API(credentials, region_name)
       log.debug(f"Checking for unattached EBS volumes in {region_name}...")
-      unattached_volumes = ec2_api.fetch_ebs_volumes()
+      unattached_volumes = ec2_api.fetch_unattached_ebs_volumes()
       log.debug(f"Found {len(unattached_volumes)} unattached EBS volumes.")
       for volume in unattached_volumes:
         volume_id = volume["VolumeId"]
-        log.debug(f"Deleting volume {volume_id}...")
-        #ec2_api.delete_ebs_volume()
+        if dry_run:
+          log.debug(f"DRY RUN: Volume {volume_id} would be deleted.")
+        else:
+          log.debug(f"Deleting volume {volume_id}...")
+          if ec2_api.delete_ebs_volume(volume_id):
+            log.debug(f"Volume {volume_id} was deleted successfully.")
+          else:
+            log.debug(f"AUTOMATION ERROR: Volume {volume_id} could not be deleted.")
+
 
   return {
     'statusCode': 200,
