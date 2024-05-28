@@ -30,6 +30,12 @@ def lambda_handler(event, context):
   regions_json = ssm_api.fetch_parameter(parameter_name)
   regions = json.loads(regions_json)
 
+  # Record live or dry run.
+  if dry_run:
+    log.debug(f"DRY RUN: No EBS volumes will be deleted.")
+  else:
+    log.debug(f"LIVE RUN: Unattached EBS volumes will be deleted.")
+
   sts_api = STSAPI()
   for account_id in account_ids:
     log.debug(f"Assuming role in {account_id}...")
