@@ -15,14 +15,6 @@ infrastructure_automation_role_name= "it-infrastructure-automation-role" #os.env
 
 
 def lambda_handler(event, context):
-  # get account_id from event
-  # fetch list of regions from SSM
-  # assume role in account
-  # for each region:
-    # describe-volumes
-    # attachment.instance-id - The ID of the instance the volume is attached to.
-    # attachment.status = null or empty
-    #"/automation/regions"
   log.debug(f"event = {event}")
   log.debug(f"context = {context}")
 
@@ -41,6 +33,12 @@ def lambda_handler(event, context):
     credentials = sts_api.fetch_credentials(infrastructure_automation_role_arn)
     for region in regions:
       log.debug(f"Checking for unattached EBS volumes in {region}...")
+
+  # assume role in account
+  # for each region:
+    # describe-volumes
+    # attachment.instance-id - The ID of the instance the volume is attached to.
+    # attachment.status = null or empty
 
   return {
     'statusCode': 200,
