@@ -11,15 +11,17 @@ from lib.sts import STSAPI
 log = logging.getLogger("lambda")
 log.setLevel(logging.DEBUG)
 
-dry_run_val = os.environ.get("DRY_RUN")
-dry_run = False if dry_run_val == "false" else True
-infrastructure_automation_role_name= os.environ.get("INFRASTRUCTURE_AUTOMATION_ROLE_NAME")
-
 
 def lambda_handler(event, context):
   log.debug(f"event = {event}")
   log.debug(f"context = {context}")
 
+  # Process environment variables.
+  dry_run_val = os.environ.get("DRY_RUN")
+  dry_run = False if dry_run_val == "false" else True
+  infrastructure_automation_role_name= os.environ.get("INFRASTRUCTURE_AUTOMATION_ROLE_NAME")
+
+  # Get the list of accounts from the event payload.
   account_ids = event["aws_account_ids"]
   log.debug(f"aws_account_ids = {account_ids}")
 
