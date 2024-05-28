@@ -38,8 +38,8 @@ def lambda_handler(event, context):
     for region_name in regions:
       ec2_api = EC2API(credentials, region_name)
       log.debug(f"Checking for unattached EBS volumes in {region_name}...")
-      unattached_volumes = ec2_api.fetch_ebs_volumes()
-      if unattached_volumes is None:
+      unattached_volumes = ec2_api.fetch_unattached_ebs_volumes()
+      if unattached_volumes is None or len(unattached_volumes) == 0:
         log.debug(f"No unattached EBS volumes found.")
         continue
       log.debug(f"Found {len(unattached_volumes)} unattached EBS volumes.")
