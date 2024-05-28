@@ -50,9 +50,3 @@ def lambda_handler(event, context):
             log.debug(f"Volume {volume_id} was deleted successfully.")
           else:
             log.debug(f"AUTOMATION ERROR: Volume {volume_id} could not be deleted.")
-
-
-  return {
-    'statusCode': 200,
-    'body': json.dumps('Hello World!')
-  }

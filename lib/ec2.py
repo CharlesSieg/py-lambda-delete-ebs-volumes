@@ -34,12 +34,12 @@ class EC2API(AWSAPI):
   def fetch_unattached_ebs_volumes(self):
     try:
       response = self.client.describe_volumes(
-        Filters={
+        Filters=[
           {
             'Name': 'attachment.status',
             'Values': ['available']
           }
-        }
+        ]
       )
       log.debug(response)
       return response["Volumes"]
