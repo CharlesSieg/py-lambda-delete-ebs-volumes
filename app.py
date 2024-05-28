@@ -3,6 +3,7 @@ import json
 import logging
 import os
 
+from lib.ec2 import EC2API
 from lib.ssm import SSMAPI
 from lib.sts import STSAPI
 
@@ -31,14 +32,15 @@ def lambda_handler(event, context):
     log.debug(f"Assuming role in {account_id}...")
     infrastructure_automation_role_arn = f"arn:aws:iam::{account_id}:role/{infrastructure_automation_role_name}"
     credentials = sts_api.fetch_credentials(infrastructure_automation_role_arn)
+    ec2_api = EC2API(credentials)
     for region in regions:
       log.debug(f"Checking for unattached EBS volumes in {region}...")
-
-  # assume role in account
-  # for each region:
-    # describe-volumes
-    # attachment.instance-id - The ID of the instance the volume is attached to.
-    # attachment.status = null or empty
+      unattached_volumes = ec2_api.fetch_ebs_volumes()
+      log.debug(f"Found {len(unattached_volumes)} unattached EBS volumes.")
+      for volume in unattached_volumes:
+        volume_id = volume["VolumeId"]
+        log.debug(f"Deleting volume {volume_id}...")
+        #ec2_api.delete_ebs_volume()
 
   return {
     'statusCode': 200,
