@@ -31,6 +31,18 @@ class EC2API(AWSAPI):
       log.error(f"Unexpected {err=}, {type(err)=}")
       return None
 
+  def fetch_running_instances(self):
+    try:
+      filters = [{'Name': 'instance-state-name', 'Values': ['running']}]
+      response = self.client.describe_instances(
+        Filters=filters
+      )
+      log.debug(response)
+      return response["Volumes"]
+    except BaseException as err:
+      log.error(f"Unexpected {err=}, {type(err)=}")
+      return None
+
   def fetch_unattached_ebs_volumes(self):
     try:
       filters = [{'Name': 'status', 'Values': ['available']}]
@@ -42,3 +54,14 @@ class EC2API(AWSAPI):
     except BaseException as err:
       log.error(f"Unexpected {err=}, {type(err)=}")
       return None
+
+  def stop_instance(self, instance_id):
+    try:
+      response = self.client.stop_instances(
+        InstanceIds=[instance_id]
+      )
+      log.debug(response)
+      return True
+    except BaseException as err:
+      log.error(f"Unexpected {err=}, {type(err)=}")
+      return False
