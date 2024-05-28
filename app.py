@@ -32,6 +32,9 @@ def lambda_handler(event, context):
     log.debug(f"Assuming role in {account_id}...")
     infrastructure_automation_role_arn = f"arn:aws:iam::{account_id}:role/{infrastructure_automation_role_name}"
     credentials = sts_api.fetch_credentials(infrastructure_automation_role_arn)
+    if credentials is None:
+      log.debug(f"AUTOMATION ERROR: Could not assume the given role in {account_id}.")
+      continue
     ec2_api = EC2API(credentials)
     for region in regions:
       log.debug(f"Checking for unattached EBS volumes in {region}...")

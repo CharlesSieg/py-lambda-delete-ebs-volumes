@@ -24,4 +24,4 @@ class STSAPI(AWSAPI):
       return credentials
     except BaseException as err:
         log.error(f"Unexpected {err=}, {type(err)=}")
-        return BaseException()
+        return None
