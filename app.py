@@ -1,4 +1,3 @@
-import boto3
 import json
 import logging
 import os
@@ -10,7 +9,6 @@ from lib.sts import STSAPI
 
 log = logging.getLogger("lambda")
 log.setLevel(logging.DEBUG)
-
 
 def lambda_handler(event, context):
   log.debug(f"event = {event}")
@@ -25,9 +23,10 @@ def lambda_handler(event, context):
   account_ids = event["aws_account_ids"]
   log.debug(f"aws_account_ids = {account_ids}")
 
+  # Get the set of regions to use in the automation.
   ssm_api = SSMAPI()
   parameter_name = f"/automation/regions"
-  regions_json = ssm_api.fetch_parameter(parameter_name)
+  regions_json = ssm_api.get_parameter(parameter_name)
   regions = json.loads(regions_json)
 
   # Record live or dry run.
