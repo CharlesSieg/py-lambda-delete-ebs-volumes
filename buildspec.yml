@@ -1,30 +1,15 @@
 version: 0.2
-
-env:
-  variables:
-    AWS_REGION: "region"
-    CICD_ACCOUNT_ID: "cicd"
-    DESTINATION_ACCOUNT_ID: "destination"
-    FUNCTION_NAME: "function_name"
-    IMAGE_REPO_NAME: "repo"
-    LAMBDA_NAME: "lambda_name"
-    SERVICE_NAME: "service"
-
 phases:
-  pre_build:
-    commands:
-      - pip3 install awscli --upgrade --user
-      - echo `aws --version`
-      - REPOSITORY_URI=$CICD_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME
   build:
     commands:
       - echo Build started on `date`
       - echo Building the Docker image...
+      - REPOSITORY_URI=$DEPLOYMENTS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$IMAGE_REPO_NAME
       - docker build --cache-from $REPOSITORY_URI:latest --tag $REPOSITORY_URI:latest .
   post_build:
     commands:
       - echo Logging in to Amazon ECR and Docker...
-      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $CICD_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+      - aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $DEPLOYMENTS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
       - echo Pushing the Docker images...
       - docker push $REPOSITORY_URI:latest
       - echo Build completed on `date`
